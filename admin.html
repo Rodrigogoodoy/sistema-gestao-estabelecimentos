@@ -1,0 +1,386 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Painel Admin — Sistema de Gestão de Saúde</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    :root {
+      --green1: #0F3D22; --green2: #14532D; --green3: #166534;
+      --green-bg: #F0FDF4; --green-bdr: #BBF7D0;
+      --bg: #FFFFFF; --bg2: #F7FEF9;
+      --txt1: #111827; --txt2: #374151; --txt3: #6B7280;
+      --border: #D1FAE5; --radius: 12px; --radius-sm: 8px;
+    }
+    body {
+      font-family: -apple-system, 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg2);
+      color: var(--txt1);
+      min-height: 100vh;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* Header */
+    .header {
+      background: #0D2B17;
+      box-shadow: 0 2px 16px rgba(0,0,0,.45);
+      position: sticky; top: 0; z-index: 99;
+    }
+    .header-inner {
+      max-width: 860px; margin: 0 auto; padding: 0 24px;
+      height: 64px; display: flex; align-items: center; justify-content: space-between;
+    }
+    .logo { display: flex; align-items: center; gap: 12px; }
+    .logo-icon {
+      width: 36px; height: 36px;
+      background: rgba(255,255,255,.15); border: 1.5px solid rgba(255,255,255,.3);
+      border-radius: 10px; display: flex; align-items: center; justify-content: center;
+      font-size: 17px;
+    }
+    .logo-text strong { font-size: .9rem; font-weight: 700; color: #fff; display: block; }
+    .logo-text span   { font-size: .68rem; color: rgba(255,255,255,.55); }
+    .header-right { display: flex; align-items: center; gap: 10px; }
+    .badge-admin {
+      font-size: .72rem; font-weight: 700; padding: 4px 12px;
+      background: rgba(134,239,172,.2); border: 1px solid rgba(134,239,172,.3);
+      color: #86EFAC; border-radius: 20px;
+    }
+    .btn-header {
+      padding: 6px 14px; border-radius: 8px; font-size: .78rem; font-weight: 600;
+      cursor: pointer; transition: all .15s; border: 1px solid rgba(255,255,255,.25);
+      background: rgba(255,255,255,.12); color: #fff;
+      text-decoration: none; display: inline-flex; align-items: center; gap: 5px;
+    }
+    .btn-header:hover { background: rgba(255,255,255,.22); }
+    .btn-header.danger { border-color: rgba(239,68,68,.4); background: rgba(239,68,68,.15); }
+    .btn-header.danger:hover { background: rgba(239,68,68,.28); }
+
+    /* Main */
+    .main { max-width: 860px; margin: 0 auto; padding: 32px 24px 80px; }
+
+    /* Card */
+    .card {
+      background: var(--bg); border: 1px solid var(--border);
+      border-radius: var(--radius); box-shadow: 0 2px 8px rgba(20,83,45,.08);
+      padding: 28px; margin-bottom: 20px;
+    }
+    .card-title {
+      font-size: .78rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .8px; color: var(--green2); margin-bottom: 20px;
+    }
+
+    /* Tabela de usuários */
+    .users-table { width: 100%; border-collapse: collapse; }
+    .users-table th {
+      text-align: left; font-size: .72rem; font-weight: 700; text-transform: uppercase;
+      letter-spacing: .5px; color: var(--txt3); padding: 8px 12px;
+      border-bottom: 2px solid var(--border);
+    }
+    .users-table td {
+      padding: 12px 12px; font-size: .88rem; color: var(--txt1);
+      border-bottom: 1px solid var(--border);
+    }
+    .users-table tr:last-child td { border-bottom: none; }
+    .users-table tr:hover td { background: var(--bg2); }
+
+    .role-badge {
+      display: inline-block; padding: 2px 10px; border-radius: 12px;
+      font-size: .7rem; font-weight: 700;
+    }
+    .role-admin { background: #FEF3C7; color: #92400E; border: 1px solid #FDE68A; }
+    .role-user  { background: var(--green-bg); color: var(--green2); border: 1px solid var(--green-bdr); }
+
+    .btn-sm {
+      padding: 4px 12px; border-radius: 6px; font-size: .75rem; font-weight: 600;
+      cursor: pointer; transition: all .15s; border: 1px solid;
+    }
+    .btn-sm.edit  { background: #EFF6FF; color: #2563EB; border-color: #BFDBFE; }
+    .btn-sm.edit:hover  { background: #DBEAFE; }
+    .btn-sm.del   { background: #FEF2F2; color: #DC2626; border-color: #FECACA; margin-left: 4px; }
+    .btn-sm.del:hover   { background: #FEE2E2; }
+
+    /* Formulário */
+    .form-row {
+      display: grid; grid-template-columns: 1fr 1fr; gap: 12px; margin-bottom: 12px;
+    }
+    @media (max-width: 520px) { .form-row { grid-template-columns: 1fr; } }
+    .field label {
+      display: block; font-size: .75rem; font-weight: 600;
+      color: var(--txt2); margin-bottom: 5px;
+    }
+    .field input, .field select {
+      width: 100%; padding: 10px 12px;
+      border: 1.5px solid var(--border); border-radius: var(--radius-sm);
+      background: var(--bg2); color: var(--txt1); font-size: .9rem;
+      font-family: inherit; transition: border .15s;
+    }
+    .field input:focus, .field select:focus {
+      outline: none; border-color: var(--green3);
+      box-shadow: 0 0 0 3px rgba(22,163,74,.15);
+    }
+    .btn-criar {
+      padding: 11px 24px; background: var(--green2); color: #fff;
+      border: none; border-radius: var(--radius-sm); font-size: .88rem;
+      font-weight: 700; cursor: pointer; transition: background .15s;
+    }
+    .btn-criar:hover { background: var(--green1); }
+
+    .msg {
+      padding: 10px 14px; border-radius: 8px; font-size: .82rem;
+      margin-bottom: 14px; display: none;
+    }
+    .msg.ok    { background: var(--green-bg); color: var(--green2); border: 1px solid var(--green-bdr); }
+    .msg.erro  { background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; }
+
+    /* Modal */
+    .modal-overlay {
+      position: fixed; inset: 0; background: rgba(0,0,0,.45);
+      display: flex; align-items: center; justify-content: center;
+      z-index: 200; display: none;
+    }
+    .modal {
+      background: var(--bg); border-radius: var(--radius);
+      box-shadow: 0 20px 60px rgba(0,0,0,.25);
+      padding: 28px; width: 100%; max-width: 360px;
+    }
+    .modal h3 { font-size: 1rem; font-weight: 700; margin-bottom: 16px; }
+    .modal-btns { display: flex; gap: 8px; margin-top: 18px; justify-content: flex-end; }
+    .btn-cancel {
+      padding: 9px 18px; background: var(--bg2); color: var(--txt2);
+      border: 1px solid var(--border); border-radius: var(--radius-sm);
+      font-size: .85rem; cursor: pointer;
+    }
+    .btn-confirm {
+      padding: 9px 18px; background: var(--green2); color: #fff;
+      border: none; border-radius: var(--radius-sm); font-size: .85rem;
+      font-weight: 700; cursor: pointer;
+    }
+    .btn-confirm:hover { background: var(--green1); }
+    .btn-confirm.danger { background: #DC2626; }
+    .btn-confirm.danger:hover { background: #B91C1C; }
+  </style>
+</head>
+<body>
+
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-icon">🏥</div>
+        <div class="logo-text">
+          <strong>Sistema de Gestão de Saúde</strong>
+          <span>Painel do Administrador</span>
+        </div>
+      </div>
+      <div class="header-right">
+        <span class="badge-admin">⚙ Admin</span>
+        <a class="btn-header" href="/">← Voltar ao Site</a>
+        <a class="btn-header danger" href="/api/logout">Sair</a>
+      </div>
+    </div>
+  </header>
+
+  <main class="main">
+
+    <!-- Mensagem global -->
+    <div class="msg" id="msg-global"></div>
+
+    <!-- Lista de usuários -->
+    <div class="card">
+      <div class="card-title">Usuários Cadastrados</div>
+      <table class="users-table" id="tabela-usuarios">
+        <thead>
+          <tr>
+            <th>Usuário</th>
+            <th>Nome</th>
+            <th>Perfil</th>
+            <th>Ações</th>
+          </tr>
+        </thead>
+        <tbody id="tbody-usuarios">
+          <tr><td colspan="4" style="text-align:center;color:var(--txt3);padding:20px">Carregando...</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- Criar novo usuário -->
+    <div class="card">
+      <div class="card-title">Criar Novo Usuário</div>
+      <div class="msg" id="msg-criar"></div>
+      <div class="form-row">
+        <div class="field">
+          <label>Nome completo</label>
+          <input type="text" id="novo-nome" placeholder="Ex: João Silva" />
+        </div>
+        <div class="field">
+          <label>Usuário (login)</label>
+          <input type="text" id="novo-usuario" placeholder="Ex: joao.silva" />
+        </div>
+      </div>
+      <div class="form-row">
+        <div class="field">
+          <label>Senha</label>
+          <input type="password" id="novo-senha" placeholder="Mínimo 4 caracteres" />
+        </div>
+        <div class="field">
+          <label>Perfil</label>
+          <select id="novo-role">
+            <option value="user">Usuário — acessa o site</option>
+            <option value="admin">Admin — gerencia usuários</option>
+          </select>
+        </div>
+      </div>
+      <button class="btn-criar" onclick="criarUsuario()">+ Criar Usuário</button>
+    </div>
+
+  </main>
+
+  <!-- Modal: alterar senha -->
+  <div class="modal-overlay" id="modal-senha">
+    <div class="modal">
+      <h3>🔑 Alterar Senha</h3>
+      <p style="font-size:.85rem;color:var(--txt3);margin-bottom:14px">Usuário: <strong id="modal-senha-user"></strong></p>
+      <div class="field">
+        <label>Nova senha</label>
+        <input type="password" id="modal-nova-senha" placeholder="Mínimo 4 caracteres" />
+      </div>
+      <div class="modal-btns">
+        <button class="btn-cancel" onclick="fecharModal('modal-senha')">Cancelar</button>
+        <button class="btn-confirm" onclick="confirmarSenha()">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Modal: confirmar exclusão -->
+  <div class="modal-overlay" id="modal-del">
+    <div class="modal">
+      <h3>🗑 Excluir Usuário</h3>
+      <p style="font-size:.88rem;color:var(--txt2);margin-bottom:6px">Tem certeza que quer excluir o usuário <strong id="modal-del-user"></strong>?</p>
+      <p style="font-size:.8rem;color:var(--txt3)">Essa ação não pode ser desfeita.</p>
+      <div class="modal-btns">
+        <button class="btn-cancel" onclick="fecharModal('modal-del')">Cancelar</button>
+        <button class="btn-confirm danger" onclick="confirmarDeletar()">Excluir</button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    let _userAlvo = '';
+
+    async function carregarUsuarios() {
+      const tbody = document.getElementById('tbody-usuarios');
+      try {
+        const r = await fetch('/api/admin/usuarios');
+        if (r.status === 401) { window.location.href = '/login'; return; }
+        const lista = await r.json();
+        if (!lista.length) {
+          tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--txt3);padding:20px">Nenhum usuário.</td></tr>';
+          return;
+        }
+        tbody.innerHTML = lista.map(u => `
+          <tr>
+            <td><code style="font-size:.85rem">${escHtml(u.usuario)}</code></td>
+            <td>${escHtml(u.nome)}</td>
+            <td><span class="role-badge ${u.role === 'admin' ? 'role-admin' : 'role-user'}">${u.role === 'admin' ? '⚙ Admin' : '👤 Usuário'}</span></td>
+            <td>
+              <button class="btn-sm edit" onclick="abrirModalSenha('${escHtml(u.usuario)}')">🔑 Senha</button>
+              <button class="btn-sm del"  onclick="abrirModalDeletar('${escHtml(u.usuario)}')">🗑 Excluir</button>
+            </td>
+          </tr>
+        `).join('');
+      } catch {
+        tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:#DC2626;padding:20px">Erro ao carregar usuários.</td></tr>';
+      }
+    }
+
+    async function criarUsuario() {
+      const nome    = document.getElementById('novo-nome').value.trim();
+      const usuario = document.getElementById('novo-usuario').value.trim().toLowerCase();
+      const senha   = document.getElementById('novo-senha').value.trim();
+      const role    = document.getElementById('novo-role').value;
+      const msg     = document.getElementById('msg-criar');
+
+      msg.style.display = 'none';
+      if (!nome || !usuario || !senha) {
+        msg.textContent = 'Preencha todos os campos.';
+        msg.className = 'msg erro'; msg.style.display = 'block'; return;
+      }
+
+      const r = await fetch('/api/admin/criar', {
+        method: 'POST',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({nome, usuario, senha, role}),
+      });
+      const d = await r.json();
+      if (!r.ok) {
+        msg.textContent = d.error || 'Erro ao criar usuário.';
+        msg.className = 'msg erro'; msg.style.display = 'block'; return;
+      }
+      msg.textContent = `Usuário "${usuario}" criado com sucesso!`;
+      msg.className = 'msg ok'; msg.style.display = 'block';
+      document.getElementById('novo-nome').value    = '';
+      document.getElementById('novo-usuario').value = '';
+      document.getElementById('novo-senha').value   = '';
+      carregarUsuarios();
+    }
+
+    function abrirModalSenha(usuario) {
+      _userAlvo = usuario;
+      document.getElementById('modal-senha-user').textContent = usuario;
+      document.getElementById('modal-nova-senha').value = '';
+      document.getElementById('modal-senha').style.display = 'flex';
+      setTimeout(() => document.getElementById('modal-nova-senha').focus(), 100);
+    }
+
+    async function confirmarSenha() {
+      const senha = document.getElementById('modal-nova-senha').value.trim();
+      if (senha.length < 4) { alert('A senha deve ter ao menos 4 caracteres.'); return; }
+      const r = await fetch(`/api/admin/senha/${_userAlvo}`, {
+        method: 'PUT',
+        headers: {'Content-Type':'application/json'},
+        body: JSON.stringify({senha}),
+      });
+      const d = await r.json();
+      fecharModal('modal-senha');
+      mostrarMsg(r.ok ? `Senha de "${_userAlvo}" alterada!` : (d.error || 'Erro.'), r.ok ? 'ok' : 'erro');
+    }
+
+    function abrirModalDeletar(usuario) {
+      _userAlvo = usuario;
+      document.getElementById('modal-del-user').textContent = usuario;
+      document.getElementById('modal-del').style.display = 'flex';
+    }
+
+    async function confirmarDeletar() {
+      const r = await fetch(`/api/admin/deletar/${_userAlvo}`, { method: 'DELETE' });
+      const d = await r.json();
+      fecharModal('modal-del');
+      mostrarMsg(r.ok ? `Usuário "${_userAlvo}" excluído.` : (d.error || 'Erro.'), r.ok ? 'ok' : 'erro');
+      if (r.ok) carregarUsuarios();
+    }
+
+    function fecharModal(id) {
+      document.getElementById(id).style.display = 'none';
+    }
+
+    function mostrarMsg(texto, tipo) {
+      const el = document.getElementById('msg-global');
+      el.textContent = texto;
+      el.className = `msg ${tipo}`;
+      el.style.display = 'block';
+      setTimeout(() => { el.style.display = 'none'; }, 4000);
+    }
+
+    function escHtml(s) {
+      return String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+    }
+
+    // Fecha modal clicando fora
+    document.querySelectorAll('.modal-overlay').forEach(m => {
+      m.addEventListener('click', e => { if (e.target === m) m.style.display = 'none'; });
+    });
+
+    carregarUsuarios();
+  </script>
+</body>
+</html>

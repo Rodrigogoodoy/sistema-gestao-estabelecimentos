@@ -1,0 +1,1307 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sistema de Gestão de Saúde</title>
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --green1:    #0F3D22;
+      --green2:    #14532D;
+      --green3:    #166534;
+      --green4:    #16A34A;
+      --green-bg:  #F0FDF4;
+      --green-bdr: #BBF7D0;
+      --hero-bg:   linear-gradient(160deg, #0F3D22 0%, #14532D 60%, #0A2A18 100%);
+      --bg:        #FFFFFF;
+      --bg2:       #F7FEF9;
+      --txt1:      #111827;
+      --txt2:      #374151;
+      --txt3:      #6B7280;
+      --border:    #D1FAE5;
+      --shadow:    0 2px 8px rgba(20,83,45,.08), 0 1px 2px rgba(20,83,45,.06);
+      --radius:    12px;
+      --radius-sm: 8px;
+    }
+    body.dark {
+      --green1:    #16A34A;
+      --green2:    #15803D;
+      --green3:    #166534;
+      --green4:    #14532D;
+      --green-bg:  #041A0C;
+      --green-bdr: #0F3D22;
+      --hero-bg:   linear-gradient(160deg, #040E08 0%, #081508 60%, #050E07 100%);
+      --bg:        #080E09;
+      --bg2:       #0A1209;
+      --txt1:      #F0FDF4;
+      --txt2:      #A7F3D0;
+      --txt3:      #6EE7B7;
+      --border:    #0F3D22;
+      --shadow:    0 2px 8px rgba(0,0,0,.5);
+    }
+
+    html { font-size: 16px; }
+    body {
+      font-family: -apple-system, 'Segoe UI', system-ui, sans-serif;
+      background: var(--bg2);
+      color: var(--txt1);
+      min-height: 100vh;
+      transition: background .25s, color .25s;
+      -webkit-font-smoothing: antialiased;
+    }
+
+    /* ── HEADER ─────────────────────────── */
+    .header {
+      background: #0D2B17;
+      box-shadow: 0 2px 16px rgba(0,0,0,.45);
+      position: sticky; top: 0; z-index: 99;
+    }
+    body.dark .header {
+      background: #060C07;
+    }
+    .header-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      padding: 0 24px;
+      height: 64px;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+    .logo {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .logo-icon {
+      width: 38px; height: 38px;
+      background: rgba(255,255,255,.15);
+      border: 1.5px solid rgba(255,255,255,.3);
+      border-radius: 10px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 18px;
+    }
+    .logo-text strong {
+      font-size: .95rem;
+      font-weight: 700;
+      color: #FFFFFF;
+      display: block;
+      line-height: 1.2;
+    }
+    .logo-text span {
+      font-size: .68rem;
+      color: rgba(255,255,255,.65);
+      display: block;
+    }
+    .header-actions {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+    }
+    .live-badge {
+      display: flex;
+      align-items: center;
+      gap: 5px;
+      font-size: .73rem;
+      font-weight: 600;
+      color: #FFFFFF;
+      background: rgba(255,255,255,.15);
+      border: 1px solid rgba(255,255,255,.25);
+      padding: 5px 11px;
+      border-radius: 20px;
+    }
+    .live-dot {
+      width: 7px; height: 7px;
+      background: #86EFAC;
+      border-radius: 50%;
+      animation: pulse 2s ease infinite;
+    }
+    @keyframes pulse { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.7)} }
+
+    .btn-mode {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      padding: 6px 12px;
+      background: rgba(255,255,255,.12);
+      border: 1px solid rgba(255,255,255,.25);
+      border-radius: 8px;
+      font-size: .78rem;
+      font-weight: 500;
+      color: #FFFFFF;
+      cursor: pointer;
+      transition: all .15s;
+    }
+    .btn-mode:hover { background: rgba(255,255,255,.22); }
+
+    /* ── HERO ────────────────────────────── */
+    .hero {
+      background: var(--hero-bg);
+      box-shadow: inset 0 -60px 80px rgba(0,0,0,.25);
+      padding: 48px 24px 56px;
+    }
+    .hero-inner {
+      max-width: 960px;
+      margin: 0 auto;
+      text-align: center;
+    }
+    .hero-tag {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      font-size: .73rem;
+      font-weight: 600;
+      color: #86EFAC;
+      background: rgba(134,239,172,.12);
+      border: 1px solid rgba(134,239,172,.25);
+      padding: 4px 12px;
+      border-radius: 20px;
+      margin-bottom: 18px;
+      letter-spacing: .3px;
+    }
+    .hero h1 {
+      font-size: 2.6rem;
+      font-weight: 800;
+      color: #FFFFFF;
+      line-height: 1.15;
+      letter-spacing: -1px;
+      margin-bottom: 12px;
+    }
+    .hero h1 span {
+      color: #86EFAC;
+    }
+    .hero p {
+      font-size: 1rem;
+      color: rgba(255,255,255,.75);
+      line-height: 1.65;
+      max-width: 500px;
+      margin: 0 auto 36px;
+    }
+    .hero-stats {
+      display: inline-flex;
+      gap: 0;
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.2);
+      border-radius: var(--radius);
+      overflow: hidden;
+    }
+    .hstat {
+      padding: 14px 30px;
+      text-align: center;
+      border-right: 1px solid rgba(255,255,255,.15);
+    }
+    .hstat:last-child { border-right: none; }
+    .hstat strong {
+      display: block;
+      font-size: 1.35rem;
+      font-weight: 800;
+      color: #FFFFFF;
+      line-height: 1;
+    }
+    .hstat span {
+      font-size: .69rem;
+      color: rgba(255,255,255,.6);
+      margin-top: 3px;
+      display: block;
+      letter-spacing: .3px;
+    }
+
+    /* ── WAVE ────────────────────────────── */
+    .wave {
+      display: block;
+      width: 100%;
+      background: #0A2A18;
+      line-height: 0;
+    }
+    body.dark .wave { background: #050E07; }
+    .wave svg { display: block; width: 100%; height: 40px; }
+
+    /* ── MAIN ────────────────────────────── */
+    .main {
+      max-width: 680px;
+      margin: 0 auto;
+      padding: 0 24px 80px;
+    }
+
+    /* ── CARD ────────────────────────────── */
+    .card {
+      background: var(--bg);
+      border: 1px solid var(--border);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
+      padding: 30px;
+      margin-bottom: 16px;
+    }
+    .card-title {
+      font-size: .78rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: var(--green2);
+      margin-bottom: 20px;
+    }
+    body.dark .card-title { color: var(--green1); }
+
+    /* ── FORM ────────────────────────────── */
+    .form-grid {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      gap: 12px;
+      margin-bottom: 16px;
+    }
+    @media (max-width: 500px) { .form-grid { grid-template-columns: 1fr; } }
+
+    .field label {
+      display: block;
+      font-size: .75rem;
+      font-weight: 600;
+      color: var(--txt2);
+      margin-bottom: 6px;
+      letter-spacing: .2px;
+    }
+    .field select {
+      width: 100%;
+      padding: 10px 36px 10px 12px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--bg2);
+      color: var(--txt1);
+      font-size: .9rem;
+      font-family: inherit;
+      appearance: none;
+      cursor: pointer;
+      transition: border .15s, box-shadow .15s;
+      background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='12' viewBox='0 0 12 12'%3E%3Cpath fill='%23166534' d='M6 8L1 3h10z'/%3E%3C/svg%3E");
+      background-repeat: no-repeat;
+      background-position: right 12px center;
+    }
+    .field select:focus {
+      outline: none;
+      border-color: var(--green3);
+      box-shadow: 0 0 0 3px rgba(22,163,74,.15);
+    }
+    .field select:disabled { opacity: .4; cursor: not-allowed; }
+
+    /* ── BUTTON ─────────────────────────── */
+    .btn-search {
+      width: 100%;
+      padding: 13px;
+      background: var(--green2);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: .92rem;
+      font-weight: 700;
+      letter-spacing: .3px;
+      cursor: pointer;
+      transition: background .15s, transform .1s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+    }
+    .btn-search:hover   { background: var(--green1); transform: translateY(-1px); }
+    .btn-search:active  { transform: translateY(0); }
+    .btn-search:disabled { opacity: .45; cursor: not-allowed; transform: none; }
+
+    /* ── STEPS ──────────────────────────── */
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin-top: 22px;
+      padding-top: 22px;
+      border-top: 1px solid var(--border);
+    }
+    @media (max-width: 500px) { .steps { grid-template-columns: 1fr; } }
+    .step {
+      display: flex;
+      align-items: flex-start;
+      gap: 10px;
+    }
+    .step-num {
+      width: 22px; height: 22px;
+      min-width: 22px;
+      background: var(--green-bg);
+      color: var(--green2);
+      border: 1px solid var(--green-bdr);
+      border-radius: 6px;
+      font-size: .72rem;
+      font-weight: 800;
+      display: flex; align-items: center; justify-content: center;
+      margin-top: 1px;
+    }
+    .step p {
+      font-size: .78rem;
+      color: var(--txt3);
+      line-height: 1.5;
+    }
+
+    /* ── STATUS ─────────────────────────── */
+    #status-card { display: none; }
+    .status-running { border-color: #3B82F6; }
+    .status-done    { border-color: var(--green3); }
+    .status-error   { border-color: #EF4444; }
+
+    .status-head {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin-bottom: 6px;
+    }
+    .status-title { font-size: .95rem; font-weight: 700; color: var(--txt1); }
+    .status-sub   { font-size: .82rem; color: var(--txt3); margin-bottom: 18px; }
+
+    .spinner {
+      width: 18px; height: 18px;
+      border: 2.5px solid rgba(59,130,246,.2);
+      border-top-color: #3B82F6;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .res-grid {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 10px;
+      margin: 18px 0;
+    }
+    .res-stat {
+      background: var(--green-bg);
+      border: 1px solid var(--green-bdr);
+      border-radius: var(--radius-sm);
+      padding: 16px;
+      text-align: center;
+    }
+    .res-num {
+      font-size: 1.9rem;
+      font-weight: 800;
+      color: var(--txt1);
+      line-height: 1;
+    }
+    .res-num.green { color: var(--green2); }
+    .res-num.red   { color: #EF4444; }
+    .res-lbl {
+      font-size: .68rem;
+      color: var(--txt3);
+      margin-top: 4px;
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: .5px;
+    }
+
+    .btn-dl {
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 11px 22px;
+      background: var(--green2);
+      color: #fff;
+      border: none;
+      border-radius: var(--radius-sm);
+      font-size: .85rem;
+      font-weight: 700;
+      cursor: pointer;
+      text-decoration: none;
+      transition: background .15s;
+    }
+    .btn-dl:hover { background: var(--green1); }
+
+    .btn-again {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      padding: 11px 18px;
+      background: transparent;
+      color: var(--txt2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      font-size: .85rem;
+      font-weight: 500;
+      cursor: pointer;
+      text-decoration: none;
+      transition: all .15s;
+      margin-left: 8px;
+    }
+    .btn-again:hover { border-color: var(--green3); color: var(--green2); }
+
+    .log {
+      background: var(--bg2);
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      padding: 10px 14px;
+      font-size: .76rem;
+      color: var(--txt3);
+      font-family: 'SF Mono', 'Consolas', monospace;
+      max-height: 90px;
+      overflow-y: auto;
+      margin-top: 14px;
+      line-height: 1.6;
+    }
+    .log p::before { content: '$ '; color: var(--green3); font-weight: 700; }
+
+    /* ── TABS ───────────────────────────── */
+    .card-tabs {
+      display: flex;
+      gap: 2px;
+      margin-bottom: 22px;
+      border-bottom: 2px solid var(--border);
+      padding-bottom: 0;
+    }
+    .card-tab {
+      padding: 8px 18px;
+      background: none;
+      border: none;
+      border-bottom: 2.5px solid transparent;
+      margin-bottom: -2px;
+      font-size: .82rem;
+      font-weight: 600;
+      color: var(--txt3);
+      cursor: pointer;
+      transition: color .15s, border-color .15s;
+    }
+    .card-tab.active { color: var(--green2); border-bottom-color: var(--green2); }
+    .card-tab:hover:not(.active) { color: var(--txt2); }
+    body.dark .card-tab.active { color: var(--green1); border-bottom-color: var(--green1); }
+
+    /* ── LOTE — fila ────────────────────── */
+    .btn-add-lote {
+      width: 100%;
+      padding: 10px;
+      background: var(--green-bg);
+      color: var(--green2);
+      border: 1.5px solid var(--green-bdr);
+      border-radius: var(--radius-sm);
+      font-size: .88rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .btn-add-lote:hover { background: var(--border); }
+    body.dark .btn-add-lote { color: var(--green1); }
+
+    .lote-mun-multi {
+      width: 100%;
+      height: 160px;
+      border: 1.5px solid var(--border);
+      border-radius: var(--radius-sm);
+      background: var(--bg2);
+      color: var(--txt1);
+      font-size: .88rem;
+      font-family: inherit;
+      padding: 4px;
+      cursor: pointer;
+    }
+    .lote-mun-multi:focus { outline: none; border-color: var(--green3); box-shadow: 0 0 0 3px rgba(22,163,74,.15); }
+    .lote-mun-multi:disabled { opacity: .4; cursor: not-allowed; }
+    .lote-mun-multi option { padding: 4px 8px; border-radius: 4px; }
+    .lote-mun-multi option:checked { background: var(--green3); color: #fff; }
+    .lote-filtro {
+      width: 100%;
+      padding: 8px 12px;
+      border: 1.5px solid var(--border);
+      border-bottom: none;
+      border-radius: var(--radius-sm) var(--radius-sm) 0 0;
+      background: var(--bg2);
+      color: var(--txt1);
+      font-size: .85rem;
+      font-family: inherit;
+    }
+    .lote-filtro:focus { outline: none; border-color: var(--green3); }
+    .lote-filtro + .lote-mun-multi {
+      border-radius: 0 0 var(--radius-sm) var(--radius-sm);
+    }
+    .lote-sel-hint {
+      font-size: .72rem;
+      color: var(--txt3);
+      margin-top: 4px;
+    }
+    .lote-sel-actions {
+      display: flex;
+      gap: 6px;
+      margin-top: 6px;
+    }
+    .btn-sel-all, .btn-sel-none {
+      flex: 1;
+      padding: 5px;
+      font-size: .75rem;
+      font-weight: 600;
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      border: 1px solid var(--border);
+      background: var(--bg2);
+      color: var(--txt2);
+      transition: all .15s;
+    }
+    .btn-sel-all:hover  { border-color: var(--green3); color: var(--green2); }
+    .btn-sel-none:hover { border-color: #EF4444; color: #EF4444; }
+
+    .lote-fila {
+      border: 1px solid var(--border);
+      border-radius: var(--radius-sm);
+      overflow: hidden;
+      margin: 12px 0 0;
+      background: var(--bg2);
+      min-height: 52px;
+    }
+    .lote-vazio {
+      padding: 14px 16px;
+      text-align: center;
+      color: var(--txt3);
+      font-size: .8rem;
+    }
+    .lote-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 9px 14px;
+      border-bottom: 1px solid var(--border);
+      background: var(--bg);
+    }
+    .lote-item:last-child { border-bottom: none; }
+    .lote-tag {
+      background: var(--green-bg);
+      color: var(--green2);
+      border: 1px solid var(--green-bdr);
+      border-radius: 4px;
+      padding: 2px 7px;
+      font-size: .7rem;
+      font-weight: 800;
+      min-width: 34px;
+      text-align: center;
+    }
+    body.dark .lote-tag { color: var(--green1); }
+    .lote-nome { flex: 1; font-size: .86rem; color: var(--txt1); }
+    .lote-rm {
+      background: none;
+      border: 1px solid var(--border);
+      color: var(--txt3);
+      border-radius: 4px;
+      padding: 2px 8px;
+      cursor: pointer;
+      font-size: .75rem;
+      transition: all .15s;
+      line-height: 1.5;
+    }
+    .lote-rm:hover { border-color: #EF4444; color: #EF4444; background: #FEF2F2; }
+
+    /* ── LOTE — progresso ───────────────── */
+    .ls-row {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      padding: 10px 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .ls-row:last-child { border-bottom: none; }
+    .ls-uf {
+      background: var(--green-bg);
+      color: var(--green2);
+      border: 1px solid var(--green-bdr);
+      border-radius: 4px;
+      padding: 2px 7px;
+      font-size: .7rem;
+      font-weight: 800;
+      min-width: 34px;
+      text-align: center;
+    }
+    body.dark .ls-uf { color: var(--green1); }
+    .ls-mun { flex: 1; font-size: .86rem; color: var(--txt1); }
+    .ls-status { display: flex; align-items: center; gap: 6px; }
+    .ls-badge {
+      font-size: .73rem;
+      padding: 3px 10px;
+      border-radius: 12px;
+      font-weight: 600;
+      white-space: nowrap;
+    }
+    .ls-waiting { background: var(--green-bg); color: var(--txt3); border: 1px solid var(--border); }
+    .ls-running { background: #EFF6FF; color: #2563EB; border: 1px solid #BFDBFE; display: inline-flex; align-items: center; gap: 5px; }
+    .ls-done    { background: #F0FDF4; color: #15803D; border: 1px solid #BBF7D0; }
+    .ls-error   { background: #FEF2F2; color: #DC2626; border: 1px solid #FECACA; }
+    .spinner-sm {
+      width: 10px; height: 10px;
+      border: 1.5px solid rgba(37,99,235,.2);
+      border-top-color: #2563EB;
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      display: inline-block;
+      flex-shrink: 0;
+    }
+    .btn-dl-sm {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: 28px; height: 28px;
+      background: var(--green2);
+      color: #fff;
+      border-radius: 6px;
+      text-decoration: none;
+      font-size: .82rem;
+      transition: background .15s;
+      flex-shrink: 0;
+    }
+    .btn-dl-sm:hover { background: var(--green1); }
+
+    /* ── FOOTER ─────────────────────────── */
+    .footer {
+      text-align: center;
+      padding: 20px 24px 40px;
+      font-size: .75rem;
+      color: var(--txt3);
+      border-top: 1px solid var(--border);
+    }
+    .footer a { color: var(--green2); text-decoration: none; }
+    .footer a:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+
+  <!-- Header -->
+  <header class="header">
+    <div class="header-inner">
+      <div class="logo">
+        <div class="logo-icon">🏥</div>
+        <div class="logo-text">
+          <strong>Sistema de Gestão de Saúde</strong>
+          <span>DataSUS · CNES · Atende SUS</span>
+        </div>
+      </div>
+      <div class="header-actions">
+        <div class="live-badge">
+          <div class="live-dot"></div>
+          Atende SUS: Sim
+        </div>
+        <a id="btn-admin" href="/admin" style="display:none;align-items:center;gap:6px;padding:6px 12px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:8px;font-size:.78rem;font-weight:600;color:#fff;text-decoration:none;transition:all .15s">⚙ Admin</a>
+        <button class="btn-mode" id="btn-mode" onclick="toggleDark()">
+          <span id="mode-icon">🌙</span>
+          <span id="mode-label">Escuro</span>
+        </button>
+        <a href="/api/logout" style="display:flex;align-items:center;gap:6px;padding:6px 12px;background:rgba(255,255,255,.12);border:1px solid rgba(255,255,255,.25);border-radius:8px;font-size:.78rem;font-weight:600;color:#fff;text-decoration:none">Sair</a>
+      </div>
+    </div>
+  </header>
+
+  <!-- Hero -->
+  <section class="hero">
+    <div class="hero-inner">
+      <div class="hero-tag">🇧🇷 Cobertura Nacional</div>
+      <h1>Estabelecimentos de<br><span>Saúde SUS</span></h1>
+      <p>Pesquise todos os estabelecimentos que atendem o SUS em qualquer município do Brasil. Dados coletados em tempo real do DataSUS.</p>
+      <div class="hero-stats">
+        <div class="hstat"><strong>5.570</strong><span>Municípios</span></div>
+        <div class="hstat"><strong>27</strong><span>Estados + DF</span></div>
+        <div class="hstat"><strong>Excel</strong><span>Automático</span></div>
+      </div>
+    </div>
+  </section>
+
+  <!-- Wave -->
+  <div class="wave">
+    <svg viewBox="0 0 1440 40" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">
+      <path d="M0,40 C360,0 1080,0 1440,40 L1440,0 L0,0 Z" fill="currentColor" class="wave-fill"/>
+    </svg>
+  </div>
+
+  <!-- Main -->
+  <main class="main" style="margin-top: 32px;">
+
+    <!-- Pesquisa -->
+    <div class="card" id="search-card">
+
+      <!-- Abas -->
+      <div class="card-tabs">
+        <button class="card-tab active" id="tab-individual" onclick="switchTab('individual')">🔍 Individual</button>
+        <button class="card-tab" id="tab-lote" onclick="switchTab('lote')">📋 Em Lote</button>
+      </div>
+
+      <!-- Painel Individual -->
+      <div id="panel-individual">
+        <div class="form-grid">
+          <div class="field">
+            <label>Estado (UF)</label>
+            <select id="sel-uf" onchange="carregarMunicipios()">
+              <option value="">Selecione...</option>
+              <option value="AC">AC — Acre</option>
+              <option value="AL">AL — Alagoas</option>
+              <option value="AP">AP — Amapá</option>
+              <option value="AM">AM — Amazonas</option>
+              <option value="BA">BA — Bahia</option>
+              <option value="CE">CE — Ceará</option>
+              <option value="DF">DF — Distrito Federal</option>
+              <option value="ES">ES — Espírito Santo</option>
+              <option value="GO">GO — Goiás</option>
+              <option value="MA">MA — Maranhão</option>
+              <option value="MT">MT — Mato Grosso</option>
+              <option value="MS">MS — Mato Grosso do Sul</option>
+              <option value="MG">MG — Minas Gerais</option>
+              <option value="PA">PA — Pará</option>
+              <option value="PB">PB — Paraíba</option>
+              <option value="PR">PR — Paraná</option>
+              <option value="PE">PE — Pernambuco</option>
+              <option value="PI">PI — Piauí</option>
+              <option value="RJ">RJ — Rio de Janeiro</option>
+              <option value="RN">RN — Rio Grande do Norte</option>
+              <option value="RS">RS — Rio Grande do Sul</option>
+              <option value="RO">RO — Rondônia</option>
+              <option value="RR">RR — Roraima</option>
+              <option value="SC">SC — Santa Catarina</option>
+              <option value="SP">SP — São Paulo</option>
+              <option value="SE">SE — Sergipe</option>
+              <option value="TO">TO — Tocantins</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Município</label>
+            <select id="sel-mun" disabled>
+              <option value="">Selecione o estado primeiro...</option>
+            </select>
+          </div>
+        </div>
+
+        <button class="btn-search" id="btn-search" onclick="pesquisar()">
+          🔍 Pesquisar Estabelecimentos
+        </button>
+
+        <div class="steps">
+          <div class="step"><div class="step-num">1</div><p>Selecione o estado e o município</p></div>
+          <div class="step"><div class="step-num">2</div><p>Aguarde o robô coletar os dados no DataSUS</p></div>
+          <div class="step"><div class="step-num">3</div><p>Baixe o Excel com todos os estabelecimentos</p></div>
+        </div>
+      </div>
+
+      <!-- Painel Em Lote -->
+      <div id="panel-lote" style="display:none">
+        <div class="form-grid">
+          <div class="field">
+            <label>Estado (UF)</label>
+            <select id="lote-uf" onchange="loteCarregarMunicipios()">
+              <option value="">Selecione...</option>
+              <option value="AC">AC — Acre</option>
+              <option value="AL">AL — Alagoas</option>
+              <option value="AP">AP — Amapá</option>
+              <option value="AM">AM — Amazonas</option>
+              <option value="BA">BA — Bahia</option>
+              <option value="CE">CE — Ceará</option>
+              <option value="DF">DF — Distrito Federal</option>
+              <option value="ES">ES — Espírito Santo</option>
+              <option value="GO">GO — Goiás</option>
+              <option value="MA">MA — Maranhão</option>
+              <option value="MT">MT — Mato Grosso</option>
+              <option value="MS">MS — Mato Grosso do Sul</option>
+              <option value="MG">MG — Minas Gerais</option>
+              <option value="PA">PA — Pará</option>
+              <option value="PB">PB — Paraíba</option>
+              <option value="PR">PR — Paraná</option>
+              <option value="PE">PE — Pernambuco</option>
+              <option value="PI">PI — Piauí</option>
+              <option value="RJ">RJ — Rio de Janeiro</option>
+              <option value="RN">RN — Rio Grande do Norte</option>
+              <option value="RS">RS — Rio Grande do Sul</option>
+              <option value="RO">RO — Rondônia</option>
+              <option value="RR">RR — Roraima</option>
+              <option value="SC">SC — Santa Catarina</option>
+              <option value="SP">SP — São Paulo</option>
+              <option value="SE">SE — Sergipe</option>
+              <option value="TO">TO — Tocantins</option>
+            </select>
+          </div>
+          <div class="field">
+            <label>Municípios <span id="lote-sel-count" style="font-weight:400;color:var(--txt3)"></span></label>
+            <input class="lote-filtro" id="lote-filtro" type="text" placeholder="Filtrar municípios..." oninput="loteFiltrar()" disabled>
+            <select id="lote-mun" class="lote-mun-multi" multiple disabled>
+              <option value="">Selecione o estado primeiro...</option>
+            </select>
+            <div class="lote-sel-actions">
+              <button class="btn-sel-all"  onclick="loteSelecionarTodos()"  disabled id="btn-sel-all">Selecionar Todos</button>
+              <button class="btn-sel-none" onclick="loteLimparSelecao()" disabled id="btn-sel-none">Limpar Seleção</button>
+            </div>
+            <p class="lote-sel-hint">Ctrl+clique para selecionar vários · Shift+clique para selecionar intervalo</p>
+          </div>
+        </div>
+
+        <button class="btn-add-lote" id="btn-add-lote" onclick="loteAdicionar()" disabled>+ Adicionar Selecionados à Fila</button>
+
+        <div class="lote-fila" id="lote-fila">
+          <p class="lote-vazio">Nenhum município na fila. Adicione municípios acima.</p>
+        </div>
+
+        <button class="btn-search" id="btn-lote-start" onclick="loteProcessarTudo()" disabled style="margin-top:16px">
+          🔍 Processar Tudo (0)
+        </button>
+      </div>
+
+    </div>
+
+    <!-- Status individual -->
+    <div class="card" id="status-card">
+      <div id="status-body"></div>
+    </div>
+
+    <!-- Status lote -->
+    <div class="card" id="lote-status-card" style="display:none">
+      <div class="card-title">Progresso do Lote</div>
+      <div id="lote-status-list"></div>
+      <div id="lote-baixar-div" style="display:none; margin-top:18px; display:none">
+        <a class="btn-dl" id="btn-baixar-tudo" onclick="baixarTudo(); return false;" href="#">⬇ Baixar Tudo (Excel Combinado)</a>
+        <button class="btn-again" onclick="loteLimpar()">+ Novo Lote</button>
+      </div>
+    </div>
+
+  </main>
+
+  <footer class="footer">
+    Fonte: <a href="https://cnes.datasus.gov.br" target="_blank">cnes.datasus.gov.br</a>
+    &nbsp;·&nbsp; Dados em tempo real &nbsp;·&nbsp; Sistema de Gestão de Saúde
+    &nbsp;·&nbsp; Desenvolvido por <strong>Rodrigo de Godoy Soares</strong>
+  </footer>
+
+  <style>
+    .wave-fill { fill: var(--bg2); }
+  </style>
+
+  <script>
+    let _muns = {}, _poll = null;
+
+    // Verifica sessão e mostra botão Admin se for admin
+    (async () => {
+      try {
+        const r = await fetch('/api/me');
+        if (r.status === 401) { window.location.href = '/login'; return; }
+        const d = await r.json();
+        if (d.role === 'admin') {
+          document.getElementById('btn-admin').style.display = 'flex';
+        }
+      } catch {}
+    })();
+
+    // Intercepta 401 em qualquer fetch e redireciona para login
+    const _fetchOrig = window.fetch;
+    window.fetch = async (...args) => {
+      const r = await _fetchOrig(...args);
+      if (r.status === 401) { window.location.href = '/login'; }
+      return r;
+    };
+
+    function escHtml(s) {
+      return String(s)
+        .replace(/&/g,'&amp;')
+        .replace(/</g,'&lt;')
+        .replace(/>/g,'&gt;')
+        .replace(/"/g,'&quot;');
+    }
+
+    if (localStorage.getItem('dark') === '1') {
+      document.body.classList.add('dark');
+      document.getElementById('mode-icon').textContent = '☀️';
+      document.getElementById('mode-label').textContent = 'Claro';
+    }
+    function toggleDark() {
+      const on = document.body.classList.toggle('dark');
+      document.getElementById('mode-icon').textContent  = on ? '☀️' : '🌙';
+      document.getElementById('mode-label').textContent = on ? 'Claro' : 'Escuro';
+      localStorage.setItem('dark', on ? '1' : '0');
+    }
+
+    async function carregarMunicipios() {
+      const uf  = document.getElementById('sel-uf').value;
+      const sel = document.getElementById('sel-mun');
+      sel.disabled = true;
+      sel.innerHTML = '<option>Carregando...</option>';
+      if (!uf) { sel.innerHTML = '<option value="">Selecione o estado primeiro...</option>'; return; }
+      try {
+        const r = await fetch(`/api/municipios/${uf}`);
+        const lista = await r.json();
+        _muns = {};
+        lista.forEach(m => { _muns[m.nome] = m.cod_ibge; });
+        sel.innerHTML = '<option value="">Selecione o município...</option>';
+        lista.forEach(m => {
+          const o = document.createElement('option');
+          o.value = m.nome; o.textContent = m.nome;
+          sel.appendChild(o);
+        });
+        sel.disabled = false;
+      } catch {
+        sel.innerHTML = '<option value="">Erro — tente novamente</option>';
+        sel.disabled = false;
+      }
+    }
+
+    async function pesquisar() {
+      const uf  = document.getElementById('sel-uf').value;
+      const mun = document.getElementById('sel-mun').value;
+      const cod = _muns[mun] || '';
+      if (!uf || !mun) { alert('Selecione o estado e o município.'); return; }
+
+      document.getElementById('btn-search').disabled = true;
+      showRunning(mun, uf);
+
+      try {
+        const r = await fetch('/api/pesquisar', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({uf, municipio: mun, cod_ibge: cod}),
+        });
+        const d = await r.json();
+        if (d.error) { showError(d.error); return; }
+        startPoll(d.job_id);
+      } catch { showError('Erro de conexão com o servidor.'); }
+    }
+
+    function startPoll(id) {
+      if (_poll) clearInterval(_poll);
+      _poll = setInterval(async () => {
+        try {
+          const r = await fetch(`/api/status/${id}`);
+          if (!r.ok) {
+            clearInterval(_poll);
+            showError('Job não encontrado. Tente novamente.');
+            document.getElementById('btn-search').disabled = false;
+            return;
+          }
+          const j = await r.json();
+          if (j.log?.length) updateLog(j.log);
+          if (j.status === 'done')  { clearInterval(_poll); showDone(j, id); document.getElementById('btn-search').disabled = false; }
+          if (j.status === 'error') { clearInterval(_poll); showError(j.error); document.getElementById('btn-search').disabled = false; }
+        } catch {}
+      }, 3000);
+    }
+
+    function showRunning(mun, uf) {
+      const c = document.getElementById('status-card');
+      c.className = 'card status-running';
+      c.style.display = 'block';
+      c.scrollIntoView({behavior:'smooth', block:'nearest'});
+      document.getElementById('status-body').innerHTML = `
+        <div class="status-head">
+          <div class="spinner"></div>
+          <div class="status-title">Coletando dados...</div>
+        </div>
+        <p class="status-sub">${escHtml(mun)} / ${escHtml(uf)} &nbsp;·&nbsp; Aguarde de 3 a 20 minutos</p>
+        <div class="log" id="log-box"><p>Conectando ao DataSUS...</p></div>
+      `;
+    }
+
+    function updateLog(lines) {
+      const b = document.getElementById('log-box');
+      if (b) { b.innerHTML = lines.map(l=>`<p>${escHtml(l)}</p>`).join(''); b.scrollTop = b.scrollHeight; }
+    }
+
+    function showDone(j, id) {
+      const c = document.getElementById('status-card');
+      c.className = 'card status-done';
+      document.getElementById('status-body').innerHTML = `
+        <div class="status-head">
+          <span class="status-icon">✅</span>
+          <div class="status-title">Coleta concluída com sucesso</div>
+        </div>
+        <p class="status-sub">Excel gerado e pronto para download</p>
+        <div class="res-grid">
+          <div class="res-stat"><div class="res-num">${j.qtd}</div><div class="res-lbl">Total</div></div>
+          <div class="res-stat"><div class="res-num green">${j.ativos}</div><div class="res-lbl">Ativos</div></div>
+          <div class="res-stat"><div class="res-num red">${j.inativos}</div><div class="res-lbl">Desativados</div></div>
+        </div>
+        <a class="btn-dl" href="/api/download/${id}">⬇ Baixar Excel</a>
+        <button class="btn-again" onclick="novaPesquisa()">+ Nova Pesquisa</button>
+      `;
+    }
+
+    function showError(msg) {
+      const c = document.getElementById('status-card');
+      c.className = 'card status-error';
+      c.style.display = 'block';
+      document.getElementById('status-body').innerHTML = `
+        <div class="status-head">
+          <span class="status-icon">❌</span>
+          <div class="status-title">Erro na pesquisa</div>
+        </div>
+        <p class="status-sub">${escHtml(msg)}</p>
+        <button class="btn-again" onclick="novaPesquisa()">Tentar novamente</button>
+      `;
+      document.getElementById('btn-search').disabled = false;
+    }
+
+    function novaPesquisa() {
+      document.getElementById('status-card').style.display = 'none';
+      document.getElementById('sel-uf').value = '';
+      const s = document.getElementById('sel-mun');
+      s.innerHTML = '<option value="">Selecione o estado primeiro...</option>';
+      s.disabled = true;
+      window.scrollTo({top: 0, behavior: 'smooth'});
+    }
+
+    // ── ABAS ──────────────────────────────────────────────────────────
+    function switchTab(tab) {
+      document.getElementById('panel-individual').style.display = tab === 'individual' ? '' : 'none';
+      document.getElementById('panel-lote').style.display        = tab === 'lote'       ? '' : 'none';
+      document.getElementById('tab-individual').classList.toggle('active', tab === 'individual');
+      document.getElementById('tab-lote').classList.toggle('active',       tab === 'lote');
+      // Oculta status cards ao trocar de aba
+      if (tab === 'individual') document.getElementById('lote-status-card').style.display = 'none';
+      if (tab === 'lote')       document.getElementById('status-card').style.display       = 'none';
+    }
+
+    // ── MODO EM LOTE ──────────────────────────────────────────────────
+    let _lote_muns = {};       // {nome: cod_ibge}
+    let _lote_muns_lista = []; // [{nome, cod_ibge}] — lista completa para filtro
+    let _lote_fila = [];       // [{uf, municipio, cod_ibge}]
+    let _lote_jobs = {};       // {idx: {status, job_id, qtd, ativos, inativos, error}}
+    let _lote_poll = null;
+
+    async function loteCarregarMunicipios() {
+      const uf    = document.getElementById('lote-uf').value;
+      const sel   = document.getElementById('lote-mun');
+      const filtro = document.getElementById('lote-filtro');
+      const btnAll  = document.getElementById('btn-sel-all');
+      const btnNone = document.getElementById('btn-sel-none');
+      const btnAdd  = document.getElementById('btn-add-lote');
+      sel.disabled = true; filtro.disabled = true;
+      btnAll.disabled = true; btnNone.disabled = true; btnAdd.disabled = true;
+      sel.innerHTML = '<option>Carregando...</option>';
+      filtro.value = '';
+      document.getElementById('lote-sel-count').textContent = '';
+      if (!uf) {
+        sel.innerHTML = '<option value="">Selecione o estado primeiro...</option>';
+        return;
+      }
+      try {
+        const r = await fetch(`/api/municipios/${uf}`);
+        const lista = await r.json();
+        _lote_muns = {};
+        _lote_muns_lista = lista;
+        lista.forEach(m => { _lote_muns[m.nome] = m.cod_ibge; });
+        _renderMunOptions(lista);
+        sel.disabled = false; filtro.disabled = false;
+        btnAll.disabled = false; btnNone.disabled = false; btnAdd.disabled = false;
+        _atualizarContador();
+      } catch {
+        sel.innerHTML = '<option value="">Erro — tente novamente</option>';
+      }
+    }
+
+    function _renderMunOptions(lista) {
+      const sel = document.getElementById('lote-mun');
+      const uf  = document.getElementById('lote-uf').value;
+      sel.innerHTML = '';
+      lista.forEach(m => {
+        const o = document.createElement('option');
+        o.value = m.nome;
+        o.textContent = m.nome;
+        // mantém selecionados os que já estão na fila
+        if (_lote_fila.some(f => f.uf === uf && f.municipio === m.nome)) {
+          o.style.color = 'var(--txt3)';
+          o.title = 'Já na fila';
+        }
+        sel.appendChild(o);
+      });
+    }
+
+    function loteFiltrar() {
+      const q     = document.getElementById('lote-filtro').value.toLowerCase();
+      const lista = _lote_muns_lista.filter(m => m.nome.toLowerCase().includes(q));
+      _renderMunOptions(lista);
+      _atualizarContador();
+    }
+
+    function _atualizarContador() {
+      const sel = document.getElementById('lote-mun');
+      const n   = sel.selectedOptions.length;
+      document.getElementById('lote-sel-count').textContent = n > 0 ? `— ${n} selecionado(s)` : '';
+    }
+
+    document.addEventListener('DOMContentLoaded', () => {
+      document.getElementById('lote-mun').addEventListener('change', _atualizarContador);
+    });
+
+    function loteSelecionarTodos() {
+      const sel = document.getElementById('lote-mun');
+      for (const o of sel.options) o.selected = true;
+      _atualizarContador();
+    }
+
+    function loteLimparSelecao() {
+      const sel = document.getElementById('lote-mun');
+      for (const o of sel.options) o.selected = false;
+      _atualizarContador();
+    }
+
+    function loteAdicionar() {
+      const uf  = document.getElementById('lote-uf').value;
+      const sel = document.getElementById('lote-mun');
+      const selecionados = [...sel.selectedOptions].map(o => o.value).filter(Boolean);
+      if (!uf) { alert('Selecione um estado.'); return; }
+      if (selecionados.length === 0) { alert('Selecione ao menos um município.'); return; }
+      let adicionados = 0, ignorados = 0;
+      for (const mun of selecionados) {
+        const cod = _lote_muns[mun] || '';
+        if (_lote_fila.some(f => f.uf === uf && f.municipio === mun)) { ignorados++; continue; }
+        _lote_fila.push({uf, municipio: mun, cod_ibge: cod});
+        adicionados++;
+      }
+      if (ignorados > 0 && adicionados === 0) {
+        alert(`Todos os municípios selecionados já estão na fila.`);
+        return;
+      }
+      if (ignorados > 0) alert(`${adicionados} adicionado(s). ${ignorados} já estava(m) na fila.`);
+      loteLimparSelecao();
+      renderLoteFila();
+    }
+
+    function loteRemover(idx) {
+      _lote_fila.splice(idx, 1);
+      renderLoteFila();
+    }
+
+    function renderLoteFila() {
+      const div = document.getElementById('lote-fila');
+      const btn = document.getElementById('btn-lote-start');
+      if (_lote_fila.length === 0) {
+        div.innerHTML = '<p class="lote-vazio">Nenhum município na fila. Adicione municípios acima.</p>';
+        btn.disabled = true;
+        btn.textContent = '🔍 Processar Tudo (0)';
+        return;
+      }
+      div.innerHTML = _lote_fila.map((m, i) => `
+        <div class="lote-item">
+          <span class="lote-tag">${escHtml(m.uf)}</span>
+          <span class="lote-nome">${escHtml(m.municipio)}</span>
+          <button class="lote-rm" onclick="loteRemover(${i})">✕</button>
+        </div>
+      `).join('');
+      btn.disabled = false;
+      btn.textContent = `🔍 Processar Tudo (${_lote_fila.length})`;
+    }
+
+    async function loteProcessarTudo() {
+      if (_lote_fila.length === 0) return;
+      const lote = [..._lote_fila];
+      _lote_jobs = {};
+
+      const btnStart = document.getElementById('btn-lote-start');
+      btnStart.disabled = true;
+
+      const statusCard = document.getElementById('lote-status-card');
+      statusCard.style.display = 'block';
+      document.getElementById('lote-baixar-div').style.display = 'none';
+      renderLoteStatus(lote);
+      statusCard.scrollIntoView({behavior:'smooth', block:'nearest'});
+
+      // Dispara todos os jobs (o backend processa em threads paralelas)
+      for (let i = 0; i < lote.length; i++) {
+        const m = lote[i];
+        try {
+          const r = await fetch('/api/pesquisar', {
+            method: 'POST',
+            headers: {'Content-Type':'application/json'},
+            body: JSON.stringify({uf: m.uf, municipio: m.municipio, cod_ibge: m.cod_ibge}),
+          });
+          const d = await r.json();
+          _lote_jobs[i] = d.error
+            ? {status: 'error', error: d.error}
+            : {status: 'running', job_id: d.job_id};
+        } catch {
+          _lote_jobs[i] = {status: 'error', error: 'Erro de conexão'};
+        }
+        renderLoteStatus(lote);
+      }
+
+      startLotePoll(lote);
+    }
+
+    function startLotePoll(lote) {
+      if (_lote_poll) clearInterval(_lote_poll);
+      _lote_poll = setInterval(async () => {
+        let pendentes = 0;
+        for (let i = 0; i < lote.length; i++) {
+          const job = _lote_jobs[i];
+          if (!job || job.status === 'done' || job.status === 'error') continue;
+          pendentes++;
+          if (!job.job_id) continue;
+          try {
+            const r = await fetch(`/api/status/${job.job_id}`);
+            if (!r.ok) { _lote_jobs[i] = {status: 'error', error: 'Job não encontrado'}; pendentes--; continue; }
+            const j = await r.json();
+            _lote_jobs[i] = {...job, ...j};
+            if (j.status !== 'running') pendentes--;
+          } catch {}
+        }
+        renderLoteStatus(lote);
+        if (pendentes === 0) {
+          clearInterval(_lote_poll);
+          document.getElementById('btn-lote-start').disabled = false;
+          const concluidos = Object.values(_lote_jobs).filter(j => j.status === 'done');
+          if (concluidos.length > 0) {
+            document.getElementById('lote-baixar-div').style.display = 'flex';
+            document.getElementById('lote-baixar-div').style.gap = '8px';
+            document.getElementById('lote-baixar-div').style.flexWrap = 'wrap';
+          }
+        }
+      }, 3000);
+    }
+
+    function renderLoteStatus(lote) {
+      document.getElementById('lote-status-list').innerHTML = lote.map((m, i) => {
+        const job = _lote_jobs[i];
+        let badge = '';
+        let dl    = '';
+        if (!job) {
+          badge = '<span class="ls-badge ls-waiting">Aguardando...</span>';
+        } else if (job.status === 'running') {
+          badge = '<span class="ls-badge ls-running"><span class="spinner-sm"></span>Coletando...</span>';
+        } else if (job.status === 'done') {
+          badge = `<span class="ls-badge ls-done">✅ ${job.qtd} estab.</span>`;
+          dl    = `<a class="btn-dl-sm" href="/api/download/${escHtml(job.job_id)}" title="Baixar Excel">⬇</a>`;
+        } else if (job.status === 'error') {
+          badge = `<span class="ls-badge ls-error" title="${escHtml(job.error||'')}">❌ Erro</span>`;
+        }
+        return `
+          <div class="ls-row">
+            <span class="ls-uf">${escHtml(m.uf)}</span>
+            <span class="ls-mun">${escHtml(m.municipio)}</span>
+            <div class="ls-status">${badge}${dl}</div>
+          </div>
+        `;
+      }).join('');
+    }
+
+    async function baixarTudo() {
+      const job_ids = Object.values(_lote_jobs)
+        .filter(j => j.status === 'done' && j.job_id)
+        .map(j => j.job_id);
+      if (job_ids.length === 0) { alert('Nenhum resultado disponível.'); return; }
+
+      const btn = document.getElementById('btn-baixar-tudo');
+      const txt = btn.textContent;
+      btn.textContent = '⏳ Gerando...';
+      btn.style.pointerEvents = 'none';
+
+      try {
+        const r = await fetch('/api/download/lote', {
+          method: 'POST',
+          headers: {'Content-Type':'application/json'},
+          body: JSON.stringify({job_ids}),
+        });
+        if (!r.ok) { alert('Erro ao gerar arquivo combinado.'); return; }
+        const blob = await r.blob();
+        const url  = URL.createObjectURL(blob);
+        const a    = document.createElement('a');
+        a.href = url; a.download = 'lote_sus_sim.xlsx'; a.click();
+        URL.revokeObjectURL(url);
+      } catch { alert('Erro ao baixar arquivo combinado.'); }
+      finally  { btn.textContent = txt; btn.style.pointerEvents = ''; }
+    }
+
+    function loteLimpar() {
+      if (_lote_poll) clearInterval(_lote_poll);
+      _lote_fila = []; _lote_jobs = {};
+      renderLoteFila();
+      loteLimparSelecao();
+      document.getElementById('lote-status-card').style.display = 'none';
+      window.scrollTo({top: 0, behavior: 'smooth'});
+    }
+  </script>
+</body>
+</html>

@@ -1,0 +1,55 @@
+# Ambiente virtual
+.venv/
+
+# Cache Python
+__pycache__/
+*.pyc
+
+# Arquivos Excel gerados (resultados de scraping)
+resultados/
+resultado_*.xlsx
+resultados_*.xlsx
+ESTABELECIMENTOS_CNES.xlsx
+MUNICIPIOS_SUS_SIM.xlsx
+RELATORIO_CNES.xlsx
+LOTE_PR_SC_COMPLETO.xlsx
+SP_MUNICIPIOS_SUS_SIM.xlsx
+cidades_pequenas_consolidado.xlsx
+cidades_pequenas_por_municipio.xlsx
+cnpjs_municipios_pequenos.xlsx
+resultados_teste_real.xlsx
+CAXIAS_SUS_SIM.xlsx
+resultados_caxias.xlsx
+cnpjs.xlsx
+cnpjs.xlsx.xlsx
+
+# Dados de entrada grandes
+050526__Base_Pesquisa_DataSUS.xlsx
+
+# Credenciais e dados sensíveis
+usuarios.json
+
+# Binários
+cloudflared.exe
+
+# Logs
+*.txt
+*.log
+
+# Checkpoints
+checkpoint*.json
+
+# Imagens de debug
+debug_*.png
+screenshot_*.png
+
+# Arquivos temporários Excel
+~$*
+
+# Pastas de resultado
+resultados_PR_SC/
+cidades_pequenas/
+html/
+
+# Claude Code
+.claude/settings.local.json
