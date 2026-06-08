@@ -6,75 +6,269 @@
   <title>Login — Sistema de Gestão de Saúde</title>
   <style>
     *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
     body {
       font-family: -apple-system, 'Segoe UI', system-ui, sans-serif;
       min-height: 100vh;
       display: flex;
-      flex-direction: column;
       align-items: center;
       justify-content: center;
-      background: #F0FDF4;
-      padding: 24px;
+      background: #040E08;
+      overflow: hidden;
       -webkit-font-smoothing: antialiased;
     }
 
-    .card {
+    /* ── Canvas de partículas ── */
+    #bg-canvas {
+      position: fixed;
+      inset: 0;
+      width: 100%; height: 100%;
+      z-index: 0;
+    }
+
+    /* ── Grade animada ── */
+    .grid-overlay {
+      position: fixed;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(22,163,74,.06) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(22,163,74,.06) 1px, transparent 1px);
+      background-size: 48px 48px;
+      z-index: 1;
+      animation: gridMove 20s linear infinite;
+    }
+    @keyframes gridMove {
+      0%   { background-position: 0 0; }
+      100% { background-position: 48px 48px; }
+    }
+
+    /* ── Gradiente radial central ── */
+    .glow-center {
+      position: fixed;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 800px; height: 600px;
+      background: radial-gradient(ellipse, rgba(22,101,52,.25) 0%, transparent 70%);
+      z-index: 2;
+      pointer-events: none;
+    }
+
+    /* ── Painéis laterais (desktop) ── */
+    .side-panel {
+      position: fixed;
+      top: 50%;
+      transform: translateY(-50%);
+      z-index: 3;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
+      opacity: 0;
+      animation: fadeInSide .8s ease forwards;
+    }
+    .side-panel.left  { left: 48px; animation-delay: .4s; }
+    .side-panel.right { right: 48px; animation-delay: .6s; }
+    @keyframes fadeInSide { to { opacity: 1; } }
+
+    @media (max-width: 1100px) { .side-panel { display: none; } }
+
+    .info-card {
+      background: rgba(15,61,34,.55);
+      border: 1px solid rgba(22,163,74,.2);
+      border-radius: 12px;
+      padding: 16px 20px;
+      width: 190px;
+      backdrop-filter: blur(8px);
+    }
+    .info-card-label {
+      font-size: .67rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: .8px;
+      color: rgba(134,239,172,.6);
+      margin-bottom: 6px;
+    }
+    .info-card-val {
+      font-size: 1.5rem;
+      font-weight: 800;
+      color: #fff;
+      line-height: 1;
+    }
+    .info-card-sub {
+      font-size: .72rem;
+      color: rgba(255,255,255,.45);
+      margin-top: 3px;
+    }
+    .info-card-bar {
+      height: 3px;
+      background: rgba(22,163,74,.2);
+      border-radius: 2px;
+      margin-top: 10px;
+      overflow: hidden;
+    }
+    .info-card-bar-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #16A34A, #86EFAC);
+      border-radius: 2px;
+      animation: barAnim 3s ease-in-out infinite alternate;
+    }
+    @keyframes barAnim { from { opacity: .6; } to { opacity: 1; } }
+
+    .pulse-dot {
+      display: inline-block;
+      width: 7px; height: 7px;
+      background: #4ADE80;
+      border-radius: 50%;
+      margin-right: 6px;
+      animation: pulseDot 2s ease infinite;
+      vertical-align: middle;
+    }
+    @keyframes pulseDot { 0%,100%{opacity:1;transform:scale(1)} 50%{opacity:.4;transform:scale(.6)} }
+
+    .tag-live {
+      display: inline-flex;
+      align-items: center;
+      font-size: .68rem;
+      font-weight: 600;
+      color: #4ADE80;
+      background: rgba(74,222,128,.1);
+      border: 1px solid rgba(74,222,128,.25);
+      border-radius: 20px;
+      padding: 3px 9px;
+      margin-bottom: 8px;
+    }
+
+    .mini-chart {
+      display: flex;
+      align-items: flex-end;
+      gap: 3px;
+      height: 32px;
+      margin-top: 10px;
+    }
+    .mini-bar {
+      flex: 1;
+      background: rgba(22,163,74,.35);
+      border-radius: 2px 2px 0 0;
+      transition: background .3s;
+    }
+    .mini-bar.hi { background: rgba(22,163,74,.75); }
+
+    /* ── Card de login ── */
+    .login-wrap {
+      position: relative;
+      z-index: 10;
       width: 100%;
       max-width: 400px;
-      background: #fff;
-      border: 1px solid #D1FAE5;
-      border-radius: 16px;
-      box-shadow: 0 8px 40px rgba(15,61,34,.13);
+      padding: 24px;
+      animation: cardIn .5s cubic-bezier(.22,.68,0,1.2) both;
+    }
+    @keyframes cardIn {
+      from { opacity: 0; transform: translateY(24px) scale(.97); }
+      to   { opacity: 1; transform: none; }
+    }
+
+    .card {
+      background: rgba(255,255,255,.97);
+      border: 1px solid rgba(22,163,74,.15);
+      border-radius: 18px;
+      box-shadow:
+        0 32px 80px rgba(0,0,0,.5),
+        0 0 0 1px rgba(22,163,74,.1),
+        inset 0 1px 0 rgba(255,255,255,.8);
       overflow: hidden;
     }
 
     .card-header {
-      background: linear-gradient(160deg, #0F3D22 0%, #14532D 60%, #0A2A18 100%);
-      padding: 32px 32px 28px;
+      background: linear-gradient(160deg, #0B2E17 0%, #14532D 55%, #0A2A18 100%);
+      padding: 30px 32px 26px;
       text-align: center;
+      position: relative;
+      overflow: hidden;
     }
-    .logo-icon {
-      width: 52px; height: 52px;
-      background: rgba(255,255,255,.15);
-      border: 1.5px solid rgba(255,255,255,.3);
-      border-radius: 14px;
-      display: flex; align-items: center; justify-content: center;
-      font-size: 24px;
-      margin: 0 auto 14px;
+    .card-header::before {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background-image:
+        linear-gradient(rgba(22,163,74,.08) 1px, transparent 1px),
+        linear-gradient(90deg, rgba(22,163,74,.08) 1px, transparent 1px);
+      background-size: 24px 24px;
     }
-    .card-header h1 {
-      font-size: 1.15rem;
-      font-weight: 700;
-      color: #fff;
-      margin-bottom: 4px;
-    }
-    .card-header p {
-      font-size: .75rem;
-      color: rgba(255,255,255,.6);
+    .card-header::after {
+      content: '';
+      position: absolute;
+      bottom: -40px; left: 50%;
+      transform: translateX(-50%);
+      width: 200px; height: 80px;
+      background: radial-gradient(ellipse, rgba(22,163,74,.3) 0%, transparent 70%);
     }
 
-    .card-body {
-      padding: 28px 32px 32px;
+    .logo-icon {
+      position: relative;
+      z-index: 1;
+      width: 54px; height: 54px;
+      background: rgba(255,255,255,.12);
+      border: 1.5px solid rgba(255,255,255,.25);
+      border-radius: 15px;
+      display: flex; align-items: center; justify-content: center;
+      font-size: 26px;
+      margin: 0 auto 14px;
+      box-shadow: 0 4px 20px rgba(0,0,0,.3);
     }
+    .card-header h1 {
+      position: relative;
+      z-index: 1;
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 5px;
+    }
+    .card-header p {
+      position: relative;
+      z-index: 1;
+      font-size: .72rem;
+      color: rgba(255,255,255,.55);
+    }
+
+    /* ── Badges no header ── */
+    .header-badges {
+      position: relative;
+      z-index: 1;
+      display: flex;
+      justify-content: center;
+      gap: 6px;
+      margin-top: 14px;
+    }
+    .hbadge {
+      font-size: .62rem;
+      font-weight: 600;
+      padding: 3px 8px;
+      border-radius: 10px;
+      background: rgba(255,255,255,.1);
+      border: 1px solid rgba(255,255,255,.18);
+      color: rgba(255,255,255,.8);
+    }
+
+    .card-body { padding: 28px 30px 30px; }
 
     .field { margin-bottom: 16px; }
     .field label {
       display: block;
-      font-size: .75rem;
+      font-size: .73rem;
       font-weight: 600;
       color: #374151;
       margin-bottom: 6px;
+      letter-spacing: .2px;
     }
     .field input {
       width: 100%;
       padding: 11px 14px;
       border: 1.5px solid #D1FAE5;
-      border-radius: 8px;
+      border-radius: 9px;
       background: #F0FDF4;
       color: #111827;
       font-size: .92rem;
       font-family: inherit;
-      transition: border .15s, box-shadow .15s;
+      transition: border .15s, box-shadow .15s, background .15s;
     }
     .field input:focus {
       outline: none;
@@ -90,65 +284,269 @@
       padding: 10px 14px;
       font-size: .82rem;
       color: #DC2626;
-      margin-bottom: 16px;
+      margin-bottom: 14px;
       display: none;
     }
 
     .btn-login {
       width: 100%;
       padding: 13px;
-      background: #14532D;
+      background: linear-gradient(135deg, #166534 0%, #14532D 100%);
       color: #fff;
       border: none;
-      border-radius: 8px;
+      border-radius: 9px;
       font-size: .95rem;
       font-weight: 700;
       cursor: pointer;
-      transition: background .15s, transform .1s;
+      transition: all .15s;
       margin-top: 4px;
+      box-shadow: 0 4px 14px rgba(20,83,45,.35);
+      letter-spacing: .2px;
     }
-    .btn-login:hover   { background: #0F3D22; transform: translateY(-1px); }
+    .btn-login:hover   { background: linear-gradient(135deg, #14532D 0%, #0F3D22 100%); transform: translateY(-1px); box-shadow: 0 6px 20px rgba(20,83,45,.45); }
     .btn-login:active  { transform: translateY(0); }
-    .btn-login:disabled { opacity: .5; cursor: not-allowed; transform: none; }
+    .btn-login:disabled { opacity: .55; cursor: not-allowed; transform: none; box-shadow: none; }
+
+    /* ── Separador ── */
+    .divider {
+      display: flex;
+      align-items: center;
+      gap: 10px;
+      margin: 18px 0;
+    }
+    .divider-line { flex: 1; height: 1px; background: #E5E7EB; }
+    .divider-txt  { font-size: .7rem; color: #9CA3AF; white-space: nowrap; }
+
+    /* ── Stats abaixo do botão ── */
+    .card-stats {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+      margin-top: 18px;
+    }
+    .cstat {
+      text-align: center;
+      background: #F0FDF4;
+      border: 1px solid #D1FAE5;
+      border-radius: 8px;
+      padding: 10px 6px;
+    }
+    .cstat-num {
+      font-size: .95rem;
+      font-weight: 800;
+      color: #14532D;
+      display: block;
+    }
+    .cstat-lbl {
+      font-size: .62rem;
+      color: #6B7280;
+      display: block;
+      margin-top: 2px;
+      font-weight: 500;
+    }
 
     .footer {
-      margin-top: 20px;
-      font-size: .72rem;
-      color: #9CA3AF;
+      margin-top: 18px;
+      font-size: .68rem;
+      color: rgba(255,255,255,.3);
       text-align: center;
     }
   </style>
 </head>
 <body>
 
-  <div class="card">
-    <div class="card-header">
-      <div class="logo-icon">🏥</div>
-      <h1>Sistema de Gestão de Saúde</h1>
-      <p>DataSUS · CNES · Atende SUS</p>
+  <canvas id="bg-canvas"></canvas>
+  <div class="grid-overlay"></div>
+  <div class="glow-center"></div>
+
+  <!-- Painel esquerdo -->
+  <div class="side-panel left">
+    <div class="info-card">
+      <div class="tag-live"><span class="pulse-dot"></span>Ao Vivo</div>
+      <div class="info-card-label">Municípios Cobertos</div>
+      <div class="info-card-val">5.570</div>
+      <div class="info-card-sub">100% do território nacional</div>
+      <div class="info-card-bar"><div class="info-card-bar-fill" style="width:100%"></div></div>
     </div>
-    <div class="card-body">
-      <form onsubmit="fazerLogin(event)">
-        <div class="field">
-          <label>Usuário</label>
-          <input type="text" id="inp-usuario" placeholder="seu.usuario" autocomplete="username" />
-        </div>
-        <div class="field">
-          <label>Senha</label>
-          <input type="password" id="inp-senha" placeholder="••••••••" autocomplete="current-password" />
-        </div>
-        <div class="erro" id="erro-msg"></div>
-        <button type="submit" class="btn-login" id="btn-login">Entrar</button>
-      </form>
+    <div class="info-card">
+      <div class="info-card-label">Estabelecimentos SUS</div>
+      <div class="info-card-val">+300k</div>
+      <div class="info-card-sub">Atende SUS: Sim</div>
+      <div class="mini-chart">
+        <div class="mini-bar" style="height:40%"></div>
+        <div class="mini-bar" style="height:55%"></div>
+        <div class="mini-bar" style="height:45%"></div>
+        <div class="mini-bar hi" style="height:70%"></div>
+        <div class="mini-bar" style="height:60%"></div>
+        <div class="mini-bar hi" style="height:85%"></div>
+        <div class="mini-bar" style="height:75%"></div>
+        <div class="mini-bar hi" style="height:100%"></div>
+      </div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-label">Estados + DF</div>
+      <div class="info-card-val">27</div>
+      <div class="info-card-sub">Cobertura completa</div>
+      <div class="info-card-bar"><div class="info-card-bar-fill" style="width:100%"></div></div>
     </div>
   </div>
 
-  <p class="footer">Desenvolvido por Rodrigo de Godoy Soares</p>
+  <!-- Card de login -->
+  <div class="login-wrap">
+    <div class="card">
+      <div class="card-header">
+        <div class="logo-icon">🏥</div>
+        <h1>Sistema de Gestão de Saúde</h1>
+        <p>DataSUS · CNES · Atende SUS</p>
+        <div class="header-badges">
+          <span class="hbadge">🇧🇷 Nacional</span>
+          <span class="hbadge">⚡ Tempo Real</span>
+          <span class="hbadge">📊 Excel Auto</span>
+        </div>
+      </div>
+      <div class="card-body">
+        <form onsubmit="fazerLogin(event)">
+          <div class="field">
+            <label>Usuário</label>
+            <input type="text" id="inp-usuario" placeholder="seu.usuario" autocomplete="username" />
+          </div>
+          <div class="field">
+            <label>Senha</label>
+            <input type="password" id="inp-senha" placeholder="••••••••" autocomplete="current-password" />
+          </div>
+          <div class="erro" id="erro-msg"></div>
+          <button type="submit" class="btn-login" id="btn-login">Entrar no Sistema</button>
+        </form>
+
+        <div class="divider">
+          <div class="divider-line"></div>
+          <span class="divider-txt">dados em tempo real do DataSUS</span>
+          <div class="divider-line"></div>
+        </div>
+
+        <div class="card-stats">
+          <div class="cstat"><span class="cstat-num">5.570</span><span class="cstat-lbl">Municípios</span></div>
+          <div class="cstat"><span class="cstat-num">27</span><span class="cstat-lbl">Estados</span></div>
+          <div class="cstat"><span class="cstat-num">Excel</span><span class="cstat-lbl">Automático</span></div>
+        </div>
+      </div>
+    </div>
+    <p class="footer">Desenvolvido por Rodrigo de Godoy Soares</p>
+  </div>
+
+  <!-- Painel direito -->
+  <div class="side-panel right">
+    <div class="info-card">
+      <div class="tag-live"><span class="pulse-dot"></span>Online</div>
+      <div class="info-card-label">Fonte de Dados</div>
+      <div class="info-card-val">CNES</div>
+      <div class="info-card-sub">cnes.datasus.gov.br</div>
+      <div class="info-card-bar"><div class="info-card-bar-fill" style="width:92%"></div></div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-label">Exportação</div>
+      <div class="info-card-val">.xlsx</div>
+      <div class="info-card-sub">Download automático</div>
+      <div class="mini-chart">
+        <div class="mini-bar hi" style="height:50%"></div>
+        <div class="mini-bar" style="height:65%"></div>
+        <div class="mini-bar hi" style="height:80%"></div>
+        <div class="mini-bar" style="height:55%"></div>
+        <div class="mini-bar hi" style="height:90%"></div>
+        <div class="mini-bar" style="height:70%"></div>
+        <div class="mini-bar hi" style="height:100%"></div>
+        <div class="mini-bar" style="height:85%"></div>
+      </div>
+    </div>
+    <div class="info-card">
+      <div class="info-card-label">Modo Em Lote</div>
+      <div class="info-card-val">∞</div>
+      <div class="info-card-sub">Múltiplos municípios</div>
+      <div class="info-card-bar"><div class="info-card-bar-fill" style="width:78%"></div></div>
+    </div>
+  </div>
 
   <script>
-    // Foca no campo usuário ao abrir
     document.getElementById('inp-usuario').focus();
 
+    // ── Animação de partículas no canvas ──────────────────────────
+    const canvas = document.getElementById('bg-canvas');
+    const ctx    = canvas.getContext('2d');
+    let W, H, particles = [];
+
+    function resize() {
+      W = canvas.width  = window.innerWidth;
+      H = canvas.height = window.innerHeight;
+    }
+    resize();
+    window.addEventListener('resize', () => { resize(); initParticles(); });
+
+    const PARTICLE_COUNT = Math.min(80, Math.floor(window.innerWidth / 18));
+    const MAX_DIST = 140;
+
+    function initParticles() {
+      particles = [];
+      for (let i = 0; i < PARTICLE_COUNT; i++) {
+        particles.push({
+          x:  Math.random() * W,
+          y:  Math.random() * H,
+          vx: (Math.random() - .5) * .4,
+          vy: (Math.random() - .5) * .4,
+          r:  Math.random() * 2 + 1,
+          alpha: Math.random() * .5 + .2,
+        });
+      }
+    }
+    initParticles();
+
+    function draw() {
+      ctx.clearRect(0, 0, W, H);
+
+      // Linhas de conexão
+      for (let i = 0; i < particles.length; i++) {
+        for (let j = i + 1; j < particles.length; j++) {
+          const dx = particles[i].x - particles[j].x;
+          const dy = particles[i].y - particles[j].y;
+          const d  = Math.sqrt(dx*dx + dy*dy);
+          if (d < MAX_DIST) {
+            const alpha = (1 - d / MAX_DIST) * .25;
+            ctx.beginPath();
+            ctx.moveTo(particles[i].x, particles[i].y);
+            ctx.lineTo(particles[j].x, particles[j].y);
+            ctx.strokeStyle = `rgba(22,163,74,${alpha})`;
+            ctx.lineWidth = .8;
+            ctx.stroke();
+          }
+        }
+      }
+
+      // Nós
+      for (const p of particles) {
+        ctx.beginPath();
+        ctx.arc(p.x, p.y, p.r, 0, Math.PI * 2);
+        ctx.fillStyle = `rgba(74,222,128,${p.alpha})`;
+        ctx.fill();
+
+        // Halo nos nós maiores
+        if (p.r > 2.2) {
+          ctx.beginPath();
+          ctx.arc(p.x, p.y, p.r + 4, 0, Math.PI * 2);
+          ctx.fillStyle = `rgba(22,163,74,${p.alpha * .15})`;
+          ctx.fill();
+        }
+
+        // Movimento
+        p.x += p.vx;
+        p.y += p.vy;
+        if (p.x < 0 || p.x > W) p.vx *= -1;
+        if (p.y < 0 || p.y > H) p.vy *= -1;
+      }
+
+      requestAnimationFrame(draw);
+    }
+    draw();
+
+    // ── Login ────────────────────────────────────────────────────
     async function fazerLogin(e) {
       e.preventDefault();
       const btn  = document.getElementById('btn-login');
@@ -163,7 +561,7 @@
       if (!usuario || !senha) {
         erro.textContent = 'Preencha usuário e senha.';
         erro.style.display = 'block';
-        btn.textContent = 'Entrar';
+        btn.textContent = 'Entrar no Sistema';
         btn.disabled = false;
         return;
       }
@@ -178,7 +576,7 @@
         if (!r.ok) {
           erro.textContent = d.error || 'Erro ao fazer login.';
           erro.style.display = 'block';
-          btn.textContent = 'Entrar';
+          btn.textContent = 'Entrar no Sistema';
           btn.disabled = false;
           return;
         }
@@ -186,7 +584,7 @@
       } catch {
         erro.textContent = 'Erro de conexão com o servidor.';
         erro.style.display = 'block';
-        btn.textContent = 'Entrar';
+        btn.textContent = 'Entrar no Sistema';
         btn.disabled = false;
       }
     }

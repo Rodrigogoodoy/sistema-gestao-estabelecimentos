@@ -26,8 +26,7 @@ cnpjs.xlsx.xlsx
 # Dados de entrada grandes
 050526__Base_Pesquisa_DataSUS.xlsx
 
-# Credenciais e dados sensíveis
-usuarios.json
+# usuarios.json incluido no repo para manter usuarios no deploy
 
 # Binários
 cloudflared.exe

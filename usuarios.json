@@ -1,0 +1,22 @@
+{
+  "admin": {
+    "senha_hash": "scrypt:32768:8:1$S2DuVtnRWusSsCrW$c19b8ff2edb831e4c1fb34b4c88f85e65be0c0e467eac35e7735859c0a127f3f4f53f2186c16002ffc0e1c5175aaf5c06929cbd7cccaef1a53db603bc7454270",
+    "role": "admin",
+    "nome": "Administrador"
+  },
+  "rodrigo": {
+    "senha_hash": "scrypt:32768:8:1$i69WhbaS7JB767ZF$c3facac8427e8e91568c3b3282bc4d12aa49e6fb6a96c72a93ab82b875028f0058b1d4acdbbfd90ba8c96debb6c75af82cfa217347adcb0eec34c5f2d69a5cc9",
+    "role": "admin",
+    "nome": "RODRIGO"
+  },
+  "kassab": {
+    "senha_hash": "scrypt:32768:8:1$ILxhchr9qcyHQ7ik$40a66b45369b111877eb2a1a5d84b74a43ab722dec0aa349d67b0c1db5c90cd0b8670d7df36649216015ae833f477de933be8e946dfd31db7563899e2b2af684",
+    "role": "admin",
+    "nome": "LUCAS KASSAB"
+  },
+  "luciano": {
+    "senha_hash": "scrypt:32768:8:1$ghSJah6Jan6lOwO8$e5a8f5d0081d6903ad07328ceeec424fcd2cd5379c7c7303b8eba5bcc76810ae0cf76a8a59a368d62ef08713d7d62c0be34251ea19a338130fe486e3fce5a4b0",
+    "role": "admin",
+    "nome": "LUCIANO"
+  }
+}

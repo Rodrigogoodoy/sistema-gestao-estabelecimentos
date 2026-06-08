@@ -266,7 +266,8 @@ def _run_scrape(job_id, uf, municipio, cod_ibge):
         job["inativos"] = inativos
         log(f"Concluído: {qtd} registros | {ativos} ativos | {inativos} desativados")
 
-        os.startfile(str(output_path.resolve()))
+        if os.name == "nt":
+            os.startfile(str(output_path.resolve()))
 
     except Exception as e:
         job["status"] = "error"
@@ -507,6 +508,10 @@ if __name__ == "__main__":
     print("  Iniciando túnel público (Cloudflare)...")
     public_url = _iniciar_cloudflare_tunnel()
 
+    # Salva URL em arquivo para consulta posterior
+    with open("tunnel_url.txt", "w", encoding="utf-8") as f:
+        f.write(public_url if public_url else "nao_disponivel")
+
     print("=" * 60)
     print("  SISTEMA CNES DataSUS — SERVIDOR ATIVO")
     print("=" * 60)
@@ -520,4 +525,5 @@ if __name__ == "__main__":
     print("=" * 60)
     print()
 
-    app.run(host="0.0.0.0", port=5000, debug=False, threaded=True)
+    port = int(os.environ.get("PORT", 5000))
+    app.run(host="0.0.0.0", port=port, debug=False, threaded=True)
