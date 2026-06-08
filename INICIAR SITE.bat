@@ -11,6 +11,7 @@ echo  Aguarde enquanto o servidor inicia...
 echo.
 cd /d "%~dp0"
 set PYTHONIOENCODING=utf-8
+start "" "chrome.exe" "http://localhost:5000/login"
 .venv\Scripts\python.exe app.py
 echo.
 echo  Servidor encerrado.
