@@ -219,7 +219,7 @@ def _gerar_excel(df, municipio, uf, output_path):
     return qtd, ativos, inativos
 
 
-def _run_scrape(job_id, uf, municipio, cod_ibge):
+def _run_scrape(job_id, uf, municipio, cod_ibge, auto_open=True):
     job = _jobs[job_id]
     job["log"] = []
 
@@ -266,7 +266,7 @@ def _run_scrape(job_id, uf, municipio, cod_ibge):
         job["inativos"] = inativos
         log(f"Concluído: {qtd} registros | {ativos} ativos | {inativos} desativados")
 
-        if os.name == "nt":
+        if auto_open and os.name == "nt":
             os.startfile(str(output_path.resolve()))
 
     except Exception as e:
@@ -399,6 +399,8 @@ def pesquisar():
     if not uf or not municipio or not cod_ibge:
         return jsonify({"error": "UF, município e código IBGE são obrigatórios."}), 400
 
+    auto_open = not body.get("lote", False)
+
     job_id = str(uuid.uuid4())[:8]
     with _jobs_lock:
         _jobs[job_id] = {
@@ -406,7 +408,7 @@ def pesquisar():
             "error": None, "qtd": 0, "ativos": 0, "inativos": 0, "log": [],
         }
 
-    threading.Thread(target=_run_scrape, args=(job_id, uf, municipio, cod_ibge), daemon=True).start()
+    threading.Thread(target=_run_scrape, args=(job_id, uf, municipio, cod_ibge, auto_open), daemon=True).start()
     return jsonify({"job_id": job_id})
 
 
@@ -473,6 +475,79 @@ def download_lote():
         download_name="lote_sus_sim.xlsx",
         mimetype="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet",
     )
+
+
+@app.route("/api/abrir/lote", methods=["POST"])
+@login_required
+def abrir_lote():
+    body    = request.get_json() or {}
+    job_ids = body.get("job_ids", [])
+    if not job_ids:
+        return jsonify({"error": "Nenhum job fornecido"}), 400
+
+    with _jobs_lock:
+        jobs = [_jobs[jid] for jid in job_ids if jid in _jobs and _jobs[jid].get("status") == "done" and _jobs[jid].get("file")]
+
+    if not jobs:
+        return jsonify({"error": "Nenhum resultado disponível"}), 404
+
+    dfs = []
+    for job in jobs:
+        try:
+            df_job = pd.read_excel(job["file"], sheet_name="Estabelecimentos", header=0)
+            dfs.append(df_job)
+        except Exception as e:
+            print(f"  [lote] Erro ao ler {job['file']}: {e}")
+
+    if not dfs:
+        return jsonify({"error": "Erro ao ler arquivos"}), 500
+
+    df_combined = pd.concat(dfs, ignore_index=True).fillna("")
+
+    pasta = Path("resultados")
+    pasta.mkdir(exist_ok=True)
+    output_path = pasta / f"lote_combinado_{uuid.uuid4().hex[:6]}.xlsx"
+
+    writer = pd.ExcelWriter(str(output_path), engine="openpyxl")
+    df_combined.to_excel(writer, sheet_name="Estabelecimentos", index=False, startrow=0)
+    ws = writer.sheets["Estabelecimentos"]
+
+    from openpyxl.styles import PatternFill, Font, Alignment, Border, Side
+    from openpyxl.utils import get_column_letter
+
+    def fill(cor): return PatternFill("solid", fgColor=cor)
+    lado = Side(style="thin", color="D1D5DB")
+    def borda(): return Border(left=lado, right=lado, top=lado, bottom=lado)
+
+    ncols = df_combined.shape[1]
+    for col in range(1, ncols + 1):
+        c = ws.cell(row=1, column=col)
+        c.fill = fill("1E3A8A")
+        c.font = Font(bold=True, color="FFFFFF", size=10, name="Calibri")
+        c.alignment = Alignment(horizontal="center", vertical="center", wrap_text=True)
+        c.border = borda()
+    ws.row_dimensions[1].height = 30
+
+    for row in range(2, len(df_combined) + 2):
+        bg = "F0F9FF" if row % 2 == 0 else "FFFFFF"
+        for col in range(1, ncols + 1):
+            c = ws.cell(row=row, column=col)
+            c.fill = fill(bg)
+            c.font = Font(bold=False, color="1E293B", size=10, name="Calibri")
+            c.alignment = Alignment(horizontal="left", vertical="center")
+            c.border = borda()
+        ws.row_dimensions[row].height = 18
+
+    for i, col_name in enumerate(df_combined.columns, 1):
+        ws.column_dimensions[get_column_letter(i)].width = LARGURAS.get(col_name, 18)
+
+    ws.freeze_panes = "A2"
+    writer.close()
+
+    if os.name == "nt":
+        os.startfile(str(output_path.resolve()))
+
+    return jsonify({"ok": True, "total": len(df_combined)})
 
 
 def _iniciar_cloudflare_tunnel():

@@ -1196,7 +1196,7 @@
           const r = await fetch('/api/pesquisar', {
             method: 'POST',
             headers: {'Content-Type':'application/json'},
-            body: JSON.stringify({uf: m.uf, municipio: m.municipio, cod_ibge: m.cod_ibge}),
+            body: JSON.stringify({uf: m.uf, municipio: m.municipio, cod_ibge: m.cod_ibge, lote: true}),
           });
           const d = await r.json();
           _lote_jobs[i] = d.error
@@ -1237,6 +1237,13 @@
             document.getElementById('lote-baixar-div').style.display = 'flex';
             document.getElementById('lote-baixar-div').style.gap = '8px';
             document.getElementById('lote-baixar-div').style.flexWrap = 'wrap';
+            // Combina todos e abre Excel único no servidor
+            const job_ids = concluidos.map(j => j.job_id).filter(Boolean);
+            fetch('/api/abrir/lote', {
+              method: 'POST',
+              headers: {'Content-Type':'application/json'},
+              body: JSON.stringify({job_ids}),
+            }).catch(() => {});
           }
         }
       }, 3000);
