@@ -1,0 +1,38 @@
+﻿[
+    {
+        "nome":  "Porto Alegre",
+        "job_id":  "caf93a1a"
+    },
+    {
+        "nome":  "Viamão",
+        "job_id":  "caf93a1a"
+    },
+    {
+        "nome":  "Canoas",
+        "job_id":  "1d328cd6"
+    },
+    {
+        "nome":  "São Leopoldo",
+        "job_id":  "1d328cd6"
+    },
+    {
+        "nome":  "Novo Hamburgo",
+        "job_id":  "a083a3f1"
+    },
+    {
+        "nome":  "Cachoeirinha",
+        "job_id":  "03c696c0"
+    },
+    {
+        "nome":  "Gravataí",
+        "job_id":  "03c696c0"
+    },
+    {
+        "nome":  "Montenegro",
+        "job_id":  "d6726c7a"
+    },
+    {
+        "nome":  "Santa Cruz do Sul",
+        "job_id":  "dafc40c0"
+    }
+]
